@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      initContainers:
+      - name: copy-build-files
+        image: d4nd3/frontend:latest
+        command: ["sh", "-c", "cp -r /frontend-build/* /data/"]
+        volumeMounts:
+        - name: frontend-volume
+          mountPath: /data
+      containers:
+      - name: placeholder
+        image: busybox
+        command: ["sh", "-c", "sleep 3600"]
+      volumes:
+      - name: frontend-volume
+        persistentVolumeClaim:
+          claimName: frontend-pvc 

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-image
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-image
+  template:
+    metadata:
+      labels:
+        app: backend-image
+    spec:
+      containers:
+      - name: backend-image
+        image: d4nd3/backend-image:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: uploads-storage
+          mountPath: /app/uploads
+        ports:
+        - containerPort: 8085
+      volumes:
+      - name: uploads-storage
+        persistentVolumeClaim:
+          claimName: backend-image-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-image
+spec:
+  selector:
+    app: backend-image
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085

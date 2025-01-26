@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-message
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-message
+  template:
+    metadata:
+      labels:
+        app: backend-message
+    spec:
+      containers:
+      - name: backend-message
+        image: d4nd3/backend-message:latest
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:mysql://mysql:3306/journaldb
+        - name: SPRING_DATASOURCE_USERNAME
+          value: journaluser
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: journalpassword
+        - name: SERVER_PORT
+          value: "8083"
+        - name: BACKEND_USER_URL
+          value: http://backend-user:8081
+        ports:
+        - containerPort: 8083
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-message
+spec:
+  ports:
+    - port: 8083
+      targetPort: 8083
+  selector:
+    app: backend-message

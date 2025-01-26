@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-encounter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-encounter
+  template:
+    metadata:
+      labels:
+        app: backend-encounter
+    spec:
+      containers:
+      - name: backend-encounter
+        image: d4nd3/backend-encounter:latest
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:mysql://mysql:3306/journaldb
+        - name: SPRING_DATASOURCE_USERNAME
+          value: journaluser
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: journalpassword
+        - name: SERVER_PORT
+          value: "8084"
+        - name: BACKEND_USER_URL
+          value: http://backend-user:8081
+        ports:
+        - containerPort: 8084
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-encounter
+spec:
+  ports:
+    - port: 8084
+      targetPort: 8084
+  selector:
+    app: backend-encounter

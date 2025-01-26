@@ -1,0 +1,10 @@
+# *
+# !target/*-runner
+# !target/*-runner.jar
+# !target/lib/*
+# !target/quarkus-app/*
+
+*
+!target/backend-search-1.0.0-SNAPSHOT.jar
+!target/lib/*
+!target/quarkus-app/*

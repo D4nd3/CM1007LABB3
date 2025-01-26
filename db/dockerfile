@@ -1,0 +1,9 @@
+# db/Dockerfile
+FROM mysql:8.0
+
+ENV MYSQL_ROOT_PASSWORD=rootpassword
+ENV MYSQL_DATABASE=journaldb
+ENV MYSQL_USER=journaluser
+ENV MYSQL_PASSWORD=journalpassword
+
+EXPOSE 3306
