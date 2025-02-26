@@ -25,6 +25,10 @@ spec:
           value: journalpassword
         - name: QUARKUS_HTTP_PORT
           value: "8086"
+        - name: KEYCLOAK_URL
+          value: http://keycloak:8080
+        - name: KEYCLOAK_REALM
+          value: master
         ports:
         - containerPort: 8086
 ---

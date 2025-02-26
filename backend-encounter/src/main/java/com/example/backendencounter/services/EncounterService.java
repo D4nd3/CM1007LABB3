@@ -72,13 +72,13 @@ public class EncounterService implements IEncounterService{
         return new Result<ObservationResponse>(true,"",result);
     }
 
-    public IResult addEncounter(CreateEncounterRequest request){
-        var staff = userServiceProxy.findUserById(request.getStaffId());
+    public IResult addEncounter(CreateEncounterRequest request,String token){
+        var staff = userServiceProxy.findUserById(request.getStaffId(),token);
         if(staff == null || !(staff.getRole() == Role.PRACTITIONER || staff.getRole() == Role.OTHER)){
             return new Result<>(false, "Couldn't find staff member");
         }
 
-        var patient = userServiceProxy.findUserById(request.getPatientId());
+        var patient = userServiceProxy.findUserById(request.getPatientId(),token);
         if(patient == null || patient.getRole() != Role.PATIENT){
             return new Result<>(false, "Couldnt find patient");
         }
@@ -96,7 +96,7 @@ public class EncounterService implements IEncounterService{
         result.setStaff(staff);
 
         if(request.getLocationId() != null){
-            var location = userServiceProxy.findLocationById(request.getLocationId());
+            var location = userServiceProxy.findLocationById(request.getLocationId(),token);
             if(location == null){
                 return new Result<>(false, "Couldn't find Location");
             }
@@ -106,9 +106,9 @@ public class EncounterService implements IEncounterService{
         return new Result<EncounterResponse>(true,"",result);
     }
 
-    public IResult getEncountersByStaffId(int id){
+    public IResult getEncountersByStaffId(String id, String token){
 
-        var staff = userServiceProxy.findUserById(id);
+        var staff = userServiceProxy.findUserById(id, token);
         if(staff == null || !(staff.getRole() == Role.PRACTITIONER || staff.getRole() == Role.OTHER)){
             return new Result<>(false, "Couldn't find staff member");
         }
@@ -125,13 +125,13 @@ public class EncounterService implements IEncounterService{
             .collect(Collectors.toList());
 
         var patientResponses = uniquePatientIds.stream()
-            .map(userServiceProxy::findUserById)
+            .map(patientId -> userServiceProxy.findUserById(patientId, token))
             .filter(java.util.Objects::nonNull)
             .collect(Collectors.toMap(UserResponse::getId, user -> user));  
 
         var result = encounters.stream().map(encounter -> {
             var patient = patientResponses.get(encounter.getPatient_id());
-            var location = encounter.getLocation_id() != null ? userServiceProxy.findLocationById(encounter.getLocation_id()) : null;
+            var location = encounter.getLocation_id() != null ? userServiceProxy.findLocationById(encounter.getLocation_id(),token) : null;
             var observations = encounter.getObservations().stream().map(Converter::convertObservation).collect(Collectors.toList());
             return new EncounterResponse(
                 encounter.getId(),
@@ -145,8 +145,8 @@ public class EncounterService implements IEncounterService{
         return new Result<List<EncounterResponse>>(true,"",result);
     }
 
-    public IResult getEncountersByPatientId(int id){
-        var patient = userServiceProxy.findUserById(id);
+    public IResult getEncountersByPatientId(String id, String token){
+        var patient = userServiceProxy.findUserById(id, token);
         if(patient == null || patient.getRole() != Role.PATIENT){
             return new Result<>(false, "Couldn't find staff member");
         }
@@ -162,14 +162,14 @@ public class EncounterService implements IEncounterService{
             .collect(Collectors.toList());
 
         var staffResponses = uniqueStaffIds.stream()
-            .map(userServiceProxy::findUserById)
+            .map(staffId -> userServiceProxy.findUserById(staffId, token))
             .filter(java.util.Objects::nonNull)
             .collect(Collectors.toMap(UserResponse::getId, user -> user));  
 
 
         var result = encounters.stream().map(encounter -> {
             var staff = staffResponses.get(encounter.getStaff_id()); 
-            var location = encounter.getLocation_id() != null ? userServiceProxy.findLocationById(encounter.getLocation_id()) : null;
+            var location = encounter.getLocation_id() != null ? userServiceProxy.findLocationById(encounter.getLocation_id(), token) : null;
             var observations = encounter.getObservations().stream().map(Converter::convertObservation).collect(Collectors.toList());
             return new EncounterResponse(
                 encounter.getId(),

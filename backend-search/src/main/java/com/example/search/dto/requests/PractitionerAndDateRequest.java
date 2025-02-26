@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class PractitionerAndDateRequest {
-  private int practitionerId;
+  private String practitionerId;
   private Date date;
 }
 

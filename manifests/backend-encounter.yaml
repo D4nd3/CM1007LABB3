@@ -26,6 +26,10 @@ spec:
           value: "8084"
         - name: BACKEND_USER_URL
           value: http://backend-user:8081
+        - name: KEYCLOAK_URL
+          value: http://keycloak:8080
+        - name: KEYCLOAK_REALM
+          value: master
         ports:
         - containerPort: 8084
 ---

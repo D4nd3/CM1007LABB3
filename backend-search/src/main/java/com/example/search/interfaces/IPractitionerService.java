@@ -6,5 +6,5 @@ import com.example.search.util.IResult;
 public interface IPractitionerService {
    
   IResult PatientsByPractitionerAndDay(PractitionerAndDateRequest request);
-  IResult PatientsByPractitioner(int id);
+  IResult PatientsByPractitioner(String id);
 }

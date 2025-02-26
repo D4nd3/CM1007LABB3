@@ -6,7 +6,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class CreateRequest {
-    private int patientId;
-    private int staffId;
+    private String patientId;
+    private String staffId;
     private String text;
 }

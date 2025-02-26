@@ -8,27 +8,30 @@ import { CreateConditionRequest, CreateEncounterRequest, CreateObservationReques
 import './css/JournalPage.css';
 
 const JournalPage: React.FC = () => {
-  const { user, isPatient, isStaff } = useAuth();
+  const { userId, isPatient, isStaff, token } = useAuth();
   const navigate = useNavigate();
 
   const [patients, setPatients] = useState<UserResponse[]>([]);
   const [encounters, setEncounters] = useState<EncounterResponse[]>([]);
-  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) {
+    if (!token) {
       navigate('/login');
     } else if (isPatient) {
-      loadPatientEncounters(user.id);
+      loadPatientEncounters(userId);
     } else if (isStaff) {
       loadAllPatients();
     }
-  }, [user]);
+  }, [token]);
 
-  const loadPatientEncounters = async (patientId: number) => {
+  const loadPatientEncounters = async (patientId: string) => {
+    if (!token) {
+      return;
+    }
     try {
-      const data = await fetchEncountersByPatientId(patientId);
+      const data = await fetchEncountersByPatientId(patientId,token);
       setEncounters(data);
     } catch (err) {
       console.error('Error fetching encounters:', err);
@@ -37,8 +40,11 @@ const JournalPage: React.FC = () => {
   };
 
   const loadAllPatients = async () => {
+    if (!token) {
+      return;
+    } 
     try {
-      const response = await fetchAllPatients();
+      const response = await fetchAllPatients(token);
       setPatients(response);
     } catch (err) {
       console.error('Error fetching patients:', err);
@@ -47,6 +53,9 @@ const JournalPage: React.FC = () => {
   };
 
   const handleCreateObservation = async (encounterId: number, ref: React.RefObject<HTMLTextAreaElement>) => {
+    if (!token) {
+      return;
+    }
     const description = ref.current?.value;
     if (!description) {
       alert('Vänligen skriv en observation.');
@@ -59,7 +68,7 @@ const JournalPage: React.FC = () => {
         description,
         visitDate: new Date(),
       };
-      const newObservation = await createObservation(request);
+      const newObservation = await createObservation(request,token);
 
       setEncounters((prev) =>
         prev.map((encounter) =>
@@ -83,10 +92,14 @@ const JournalPage: React.FC = () => {
   };
 
   const handleCreateCondition = async (
+    
     observationId: number,
     nameRef: React.RefObject<HTMLInputElement>,
     descriptionRef: React.RefObject<HTMLTextAreaElement>
   ) => {
+    if (!token) {
+      return;
+    }
     const name = nameRef.current?.value;
     const description = descriptionRef.current?.value;
 
@@ -101,7 +114,7 @@ const JournalPage: React.FC = () => {
         name,
         description,
       };
-      const newCondition = await createCondition(request);
+      const newCondition = await createCondition(request,token);
 
       setEncounters((prev) =>
         prev.map((encounter) => ({
@@ -162,7 +175,7 @@ const JournalPage: React.FC = () => {
           <div>
             <select
               onChange={async (e) => {
-                const patientId = Number(e.target.value);
+                const patientId = e.target.value;
                 setSelectedPatientId(patientId);
                 if (patientId) {
                   await loadPatientEncounters(patientId);
@@ -181,14 +194,17 @@ const JournalPage: React.FC = () => {
           <h3>Encounters</h3>
           <button
             onClick={async () => {
+              if (!token) {
+                return;
+              }
               if (selectedPatientId) {
                 try {
                   const request: CreateEncounterRequest = {
                     patientId: selectedPatientId,
-                    staffId: user!.id,
+                    staffId: userId,
                     locationId: null,
                   };
-                  const newEncounter = await createEncounter(request);
+                  const newEncounter = await createEncounter(request,token);
                   setEncounters((prev) => [...prev, newEncounter]);
                   alert('Encounter skapad!');
                 } catch (err) {

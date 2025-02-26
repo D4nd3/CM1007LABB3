@@ -18,7 +18,7 @@ public class Note {
 
     private String text;
 
-    private int patient_id;
+    private String patient_id;
 
-    private int staff_id;
+    private String staff_id;
 }

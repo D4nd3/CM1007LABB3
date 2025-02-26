@@ -4,7 +4,7 @@ import com.example.backendnote.util.IResult;
 import com.example.backendnote.dto.requests.notes.CreateRequest;
 
 public interface INoteService {
-  IResult getByPatientId(int id);
-  IResult getByStaffId(int staffId);
-  IResult create(CreateRequest request);
+  IResult getByPatientId(String id, String token);
+  IResult getByStaffId(String staffId, String token);
+  IResult create(CreateRequest request, String token);
 }

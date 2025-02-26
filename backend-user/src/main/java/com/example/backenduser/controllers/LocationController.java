@@ -26,7 +26,7 @@ public class LocationController {
     public ResponseEntity<?> get(){
         var result = locationService.getAll();
             
-        if(!result.getSuccess()){
+        if(!result.isSuccess()){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result.getMessage());
         }
         if (result instanceof Result<?> res && res.getData() instanceof List<?> data && data.stream().allMatch(item -> item instanceof LocationResponse)) {
@@ -43,7 +43,7 @@ public class LocationController {
     public ResponseEntity<?> getById(@RequestParam int id){
         var result = locationService.getById(id);
             
-        if(!result.getSuccess()){
+        if(!result.isSuccess()){
             return ResponseEntity.status(401).body(result.getMessage());
         }
         if (result instanceof Result<?> res && res.getData() instanceof LocationResponse locationResponse) {

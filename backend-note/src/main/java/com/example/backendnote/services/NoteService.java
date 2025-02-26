@@ -1,5 +1,6 @@
 package com.example.backendnote.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,17 +26,18 @@ public class NoteService implements INoteService{
     @Autowired
     private UserServiceProxy userServiceProxy;
 
-    public IResult getByPatientId(int id){
-        var notes = noteRepository.findByPatientId(id);
-
-        if (notes == null || notes.isEmpty()) {
-            return new Result<>(false, "Inga anteckningar hittades för patienten.");
-        }
-
-        var patientResponse = userServiceProxy.findUserById(id);
+    public IResult getByPatientId(String id, String token){
+        var patientResponse = userServiceProxy.findUserById(id, token);
         if (patientResponse == null || patientResponse.getRole() != Role.PATIENT) {
             return new Result<>(false, "Kunde inte hitta patienten i UserService.");
         }
+
+        var notes = noteRepository.findByPatientId(id);
+
+        if (notes == null || notes.isEmpty()) {
+            return new Result<List<NoteResponse>>(true, "", new ArrayList<NoteResponse>());
+        }
+
 
         var uniqueStaffIds = notes.stream()
             .map(Note::getStaff_id)
@@ -43,7 +45,7 @@ public class NoteService implements INoteService{
             .collect(Collectors.toList());
 
         var staffResponses = uniqueStaffIds.stream()
-        .map(userServiceProxy::findUserById)
+        .map(uniqueId -> userServiceProxy.findUserById(uniqueId, token))
         .filter(java.util.Objects::nonNull)
         .collect(Collectors.toMap(UserResponse::getId, user -> user));
 
@@ -60,16 +62,16 @@ public class NoteService implements INoteService{
         return new Result<List<NoteResponse>>(true,"",result);
     }
 
-    public IResult getByStaffId(int staffId) {
+    public IResult getByStaffId(String staffId, String token) {
+        var staffResponse = userServiceProxy.findUserById(staffId, token);
+        if (staffResponse == null || staffResponse.getRole() != Role.OTHER || staffResponse.getRole() != Role.PRACTITIONER) {
+            return new Result<>(false, "Kunde inte hitta personalen i UserService.");
+        }
+
         var notes = noteRepository.findByStaffId(staffId);
     
         if (notes == null || notes.isEmpty()) {
-            return new Result<>(false, "Inga anteckningar hittades för personalen.");
-        }
-    
-        var staffResponse = userServiceProxy.findUserById(staffId);
-        if (staffResponse == null || staffResponse.getRole() != Role.OTHER || staffResponse.getRole() != Role.PRACTITIONER) {
-            return new Result<>(false, "Kunde inte hitta personalen i UserService.");
+            return new Result<List<NoteResponse>>(true, "", new ArrayList<NoteResponse>());
         }
     
         var uniquePatientIds = notes.stream()
@@ -78,7 +80,7 @@ public class NoteService implements INoteService{
             .collect(Collectors.toList());
     
         var patientResponses = uniquePatientIds.stream()
-            .map(userServiceProxy::findUserById)
+            .map(uniqueId ->userServiceProxy.findUserById(uniqueId, token))
             .filter(java.util.Objects::nonNull)
             .collect(Collectors.toMap(UserResponse::getId, user -> user));
     
@@ -95,13 +97,13 @@ public class NoteService implements INoteService{
         return new Result<List<NoteResponse>>(true, "", result);
     }
 
-    public IResult create(CreateRequest request){
-        var patientResponse = userServiceProxy.findUserById(request.getPatientId());
+    public IResult create(CreateRequest request, String token) {
+        var patientResponse = userServiceProxy.findUserById(request.getPatientId(), token);
         if (patientResponse == null || patientResponse.getRole() != Role.PATIENT) {
             return new Result<>(false, "Patienten kunde inte hämtas.");
         }
 
-        var staffResponse = userServiceProxy.findUserById(request.getStaffId());
+        var staffResponse = userServiceProxy.findUserById(request.getStaffId(), token);
         if(staffResponse == null || !(staffResponse.getRole() == Role.OTHER || staffResponse.getRole() == Role.PRACTITIONER)) {
             return new Result<>(false, "Personal kunde inte hämtas.");
         }

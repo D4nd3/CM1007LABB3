@@ -24,7 +24,7 @@ public class PractitionerController {
 
     @GET
     @Path("/search")
-    public Response searchPatientsByPractitioner(@QueryParam("id") int id) {
+    public Response searchPatientsByPractitioner(@QueryParam("id") String id) {
 
         var result = practitionerService.PatientsByPractitioner(id);
         if(!result.getSuccess()){

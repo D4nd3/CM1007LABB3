@@ -1,5 +1,5 @@
 export interface SendMessageRequest {
-    senderId: number;
-    receiverId: number;
+    senderId: string;
+    receiverId: string;
     text: string;
 }

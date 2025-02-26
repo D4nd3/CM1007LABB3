@@ -8,17 +8,17 @@ import { UserResponse, NoteResponse } from '../types/responses';
 import './css/NotePage.css';
 
 const NotePage: React.FC = () => {
-  const { user, isPatient, isStaff } = useAuth();
+  const { token, userId, isPatient, isStaff } = useAuth();
   const navigate = useNavigate();
   const [patients, setPatients] = useState<UserResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [notes, setNotes] = useState<NoteResponse[]>([]);
-  const [expandedPatientId, setExpandedPatientId] = useState<number | null>(null);
+  const [expandedPatientId, setExpandedPatientId] = useState<string | null>(null);
   const [noteText, setNoteText] = useState<string>('');
   
 
   useEffect(() => {
-    if (!user) {
+    if (!token) {
       navigate('/login');
       return;
     }
@@ -26,7 +26,7 @@ const NotePage: React.FC = () => {
     if (isPatient) {
       const loadPatientNotes = async () => {
         try {
-          const patientNotes = await fetchNotesByPatientId(user.id);
+          const patientNotes = await fetchNotesByPatientId(userId,token);
           setNotes(patientNotes);
         } catch (err) {
           console.error('Error fetching patient notes:', err);
@@ -38,7 +38,7 @@ const NotePage: React.FC = () => {
     } else if (isStaff) {
       const loadAllPatients = async () => {
         try {
-          const response = await fetchAllPatients();
+          const response = await fetchAllPatients(token);
           setPatients(response);
         } catch (err) {
           console.error('Error fetching patients:', err);
@@ -48,7 +48,7 @@ const NotePage: React.FC = () => {
   
       loadAllPatients();
     }
-  }, [user, isPatient, isStaff, navigate]);
+  }, [isPatient, isStaff, navigate]);
 
   return (
     <div>
@@ -82,6 +82,10 @@ const NotePage: React.FC = () => {
                 <li key={patient.id} className="patient-item">
                   <div
                     onClick={async () => {
+                      if (!token) { 
+                        setError('Saknad token.');
+                        return;
+                      }
                       if (expandedPatientId === patient.id) {
                         setExpandedPatientId(null);
                           setNotes([]);
@@ -89,7 +93,7 @@ const NotePage: React.FC = () => {
                       }
                       setExpandedPatientId(patient.id);
                       try {
-                        const fetchedNotes = await fetchNotesByPatientId(patient.id);
+                        const fetchedNotes = await fetchNotesByPatientId(patient.id,token);
                         setNotes(fetchedNotes);
                       } catch (err) {
                         console.error('Error fetching notes for patient:', err);
@@ -120,17 +124,20 @@ const NotePage: React.FC = () => {
                       />
                       <button
                         onClick={async () => {
+                          if (!token) { 
+                            setError('Saknad token.');
+                            return;
+                          }
                           try {
                             const noteRequest: CreateNoteRequest = {
-                              // @ts-ignore
-                              staffId: user.id,
+                              staffId: userId,
                               patientId: patient.id,
                               text: noteText
                             };
-                            var result = await createNote(noteRequest);
+                            var result = await createNote(noteRequest,token);
                             setNoteText(''); // töm fältet
                             // Hämta uppdaterad lista direkt
-                            const updatedNotes = await fetchNotesByPatientId(patient.id);
+                            const updatedNotes = await fetchNotesByPatientId(patient.id,token);
                             setNotes(updatedNotes);
                           } catch (err) {
                             console.error('Error creating note:', err);

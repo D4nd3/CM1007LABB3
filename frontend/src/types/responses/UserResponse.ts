@@ -1,7 +1,7 @@
 import { Role } from '../Role';
 
 export interface UserResponse {
-    id: number;
+    id: string;
     fullName: string;
     role: Role;
 }

@@ -9,9 +9,9 @@ public interface IEncounterService {
 
   IResult addObservation(CreateObservationRequest request);
 
-  IResult addEncounter(CreateEncounterRequest request);
+  IResult addEncounter(CreateEncounterRequest request, String token);
 
-  IResult getEncountersByStaffId(int id);
+  IResult getEncountersByStaffId(String id, String token);
 
-  IResult getEncountersByPatientId(int id);
+  IResult getEncountersByPatientId(String id, String token);
 }

@@ -60,7 +60,7 @@ class PractitionerControllerTests {
     @Test
     void searchPatientsByPractitioner_Calls_PractitionerService_With_Id() {
         // Arrange
-        var id = enchancedRandom.nextObject(int.class);
+        var id = enchancedRandom.nextObject(String.class);
         var response = enchancedRandom.nextObject(Result.class);
         
         when(mockPractitionerService.PatientsByPractitioner(id))
@@ -76,7 +76,7 @@ class PractitionerControllerTests {
     @Test
     void searchPatientsByPractitioner_Returns_BadRequest_When_ResultIsFailure() {
         // Arrange
-        var id = enchancedRandom.nextObject(int.class);
+        var id = enchancedRandom.nextObject(String.class);
         var message = enchancedRandom.nextObject(String.class);
         
         when(mockPractitionerService.PatientsByPractitioner(id))
@@ -92,7 +92,7 @@ class PractitionerControllerTests {
     @Test
     void searchPatientsByPractitioner_Returns_message_from_PractitionerService_When_ResultIsFailure() {
         // Arrange
-        var id = enchancedRandom.nextObject(int.class);
+        var id = enchancedRandom.nextObject(String.class);
         var message = enchancedRandom.nextObject(String.class);
         
         when(mockPractitionerService.PatientsByPractitioner(id))

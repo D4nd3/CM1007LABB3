@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import com.example.backendmessage.dto.requests.messages.*;
 import com.example.backendmessage.interfaces.IMessageService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/messages")
 public class MessageController {
@@ -17,8 +19,9 @@ public class MessageController {
     }
 
     @GetMapping
-    public ResponseEntity<?> get(@RequestParam int userId) {
-        var result = messageService.getMessagesByUserId(userId);
+    public ResponseEntity<?> get(@RequestParam String userId, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        var result = messageService.getMessagesByUserId(userId, token);
         
         if(!result.getSuccess()){
             return ResponseEntity
@@ -30,8 +33,9 @@ public class MessageController {
     }
 
     @PostMapping("/send")
-    public ResponseEntity<?> send(@RequestBody SendMessageRequest request) {
-        var result = messageService.send(request);
+    public ResponseEntity<?> send(@RequestBody SendMessageRequest sendRequest, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        var result = messageService.send(sendRequest, token);
 
         if(!result.getSuccess()){
             return ResponseEntity
@@ -43,8 +47,9 @@ public class MessageController {
     }
 
     @PutMapping("/updateIsRead")
-    public ResponseEntity<?> updateIsRead(@RequestParam int id) {
-        var result = messageService.updateIsRead(id);
+    public ResponseEntity<?> updateIsRead(@RequestParam int id, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        var result = messageService.updateIsRead(id, token);
         
         if (!result.getSuccess()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());

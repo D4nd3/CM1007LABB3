@@ -10,15 +10,17 @@ import {
 import { fetchAllStaff } from '../services/api';
 import { PractitionerAndDateRequest } from '../types/requests';
 import { UserResponse } from '../types/responses';
+import { useAuth } from '../contexts/AuthContext';
 import './css/SearchPage.css';
 
 const SearchPage: React.FC = () => {
+  const { token } = useAuth();
   const [selectedTab, setSelectedTab] = useState<'name' | 'practitioner'>('name');
   const [radioOption, setRadioOption] = useState<'patientName' | 'condition' | 'staffName' | null>(null);
   const [searchInput, setSearchInput] = useState('');
   const [results, setResults] = useState<UserResponse[]>([]);
   const [staffList, setStaffList] = useState<UserResponse[]>([]);
-  const [selectedPractitionerId, setSelectedPractitionerId] = useState<number | null>(null);
+  const [selectedPractitionerId, setSelectedPractitionerId] = useState<string | null>(null);
   const [includeDate, setIncludeDate] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -31,8 +33,11 @@ const SearchPage: React.FC = () => {
   }, [selectedTab]);
 
   const loadStaffList = async () => {
+    if (!token) {
+      return;
+    } 
     try {
-      const staff = await fetchAllStaff();
+      const staff = await fetchAllStaff(token);
       const practitioners = staff.filter((user) => user.role === 'PRACTITIONER');
       setStaffList(practitioners);
     } catch (err) {
@@ -42,6 +47,9 @@ const SearchPage: React.FC = () => {
   };
 
   const handleSearch = async () => {
+    if (!token) {
+      return;
+    }
     setError(null);
     setNoResultsMessage(null);
 
@@ -50,13 +58,13 @@ const SearchPage: React.FC = () => {
       if (selectedTab === 'name' && radioOption) {
         switch (radioOption) {
           case 'patientName':
-            searchResults = await searchPatientsByName(searchInput);
+            searchResults = await searchPatientsByName(searchInput,token);
             break;
           case 'condition':
-            searchResults = await searchPatientsByCondition(searchInput);
+            searchResults = await searchPatientsByCondition(searchInput,token);
             break;
           case 'staffName':
-            searchResults = await searchPatientsByStaffName(searchInput);
+            searchResults = await searchPatientsByStaffName(searchInput,token);
             break;
         }
       } else if (selectedTab === 'practitioner' && selectedPractitionerId) {
@@ -65,9 +73,9 @@ const SearchPage: React.FC = () => {
             practitionerId: selectedPractitionerId,
             date: new Date(selectedDate),
           };
-          searchResults = await searchPatientsByPractitionerAndDate(request);
+          searchResults = await searchPatientsByPractitionerAndDate(request,token);
         } else {
-          searchResults = await searchPatientsByPractitioner(selectedPractitionerId.toString());
+          searchResults = await searchPatientsByPractitioner(selectedPractitionerId.toString(),token);
         }
       }
 
@@ -151,7 +159,7 @@ const SearchPage: React.FC = () => {
         {selectedTab === 'practitioner' && (
           <div className="practitioner-tab">
             <select
-              onChange={(e) => setSelectedPractitionerId(Number(e.target.value))}
+              onChange={(e) => setSelectedPractitionerId(e.target.value)}
             >
               <option value="">Välj en läkare...</option>
               {staffList.map((staff) => (

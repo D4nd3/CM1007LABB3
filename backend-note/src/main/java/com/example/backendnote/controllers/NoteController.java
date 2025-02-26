@@ -3,7 +3,6 @@ package com.example.backendnote.controllers;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +17,8 @@ import com.example.backendnote.dto.responses.notes.NoteResponse;
 import com.example.backendnote.interfaces.INoteService;
 import com.example.backendnote.util.Result;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/notes")
 public class NoteController {
@@ -29,8 +30,10 @@ public class NoteController {
     }
 
     @GetMapping("/byPatientId")
-    public ResponseEntity<?> getByPatientId(@RequestParam int id){
-        var result = noteService.getByPatientId(id);
+    public ResponseEntity<?> getByPatientId(@RequestParam String id, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+
+        var result = noteService.getByPatientId(id, token);
 
         if(!result.getSuccess()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
@@ -46,8 +49,10 @@ public class NoteController {
     }
 
     @GetMapping("/byStaffId")
-    public ResponseEntity<?> getByStaffId(@RequestParam int id){
-        var result = noteService.getByStaffId(id);
+    public ResponseEntity<?> getByStaffId(@RequestParam String id, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+
+        var result = noteService.getByStaffId(id,token);
 
         if(!result.getSuccess()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
@@ -63,8 +68,9 @@ public class NoteController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody CreateRequest request){
-        var result = noteService.create(request);
+    public ResponseEntity<?> create(@RequestBody CreateRequest createRequest, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        var result = noteService.create(createRequest,token);
 
         if(!result.getSuccess()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());

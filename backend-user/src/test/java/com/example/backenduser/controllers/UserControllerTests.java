@@ -1,7 +1,6 @@
 package com.example.backenduser.controllers;
 
 import com.example.backenduser.dto.requests.users.CreateUserRequest;
-import com.example.backenduser.dto.requests.users.LoginRequest;
 import com.example.backenduser.interfaces.IUserService;
 import com.example.backenduser.util.Result;
 
@@ -113,53 +112,53 @@ class UserControllerTests {
 
     // #region loginUser
 
-    @Test
-    void loginUser_Calls_UserService_With_Request() {
-        // Arrange
-        var request = enchancedRandom.nextObject(LoginRequest.class);
-        var response = enchancedRandom.nextObject(Result.class);
+    // @Test
+    // void loginUser_Calls_UserService_With_Request() {
+    //     // Arrange
+    //     var request = enchancedRandom.nextObject(LoginRequest.class);
+    //     var response = enchancedRandom.nextObject(Result.class);
         
-        when(mockUserService.authenticateUser(request))
-            .thenReturn(response);
+    //     when(mockUserService.authenticateUser(request))
+    //         .thenReturn(response);
 
-        // Act
-        _sut.loginUser(request);
+    //     // Act
+    //     _sut.loginUser(request);
 
-        // Assert
-        verify(mockUserService, times(1)).authenticateUser(request);
-    }
+    //     // Assert
+    //     verify(mockUserService, times(1)).authenticateUser(request);
+    // }
 
-    @Test
-    void loginUser_Returns_UnAuthorized_When_ResultIsFailure() {
-        // Arrange
-        var request = enchancedRandom.nextObject(LoginRequest.class);
-        var message = enchancedRandom.nextObject(String.class);
+    // @Test
+    // void loginUser_Returns_UnAuthorized_When_ResultIsFailure() {
+    //     // Arrange
+    //     var request = enchancedRandom.nextObject(LoginRequest.class);
+    //     var message = enchancedRandom.nextObject(String.class);
         
-        when(mockUserService.authenticateUser(request))
-            .thenReturn(new Result<>(false, message));
+    //     when(mockUserService.authenticateUser(request))
+    //         .thenReturn(new Result<>(false, message));
 
-        // Act
-        var response = _sut.loginUser(request);
+    //     // Act
+    //     var response = _sut.loginUser(request);
 
-        // Assert
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-    }
+    //     // Assert
+    //     assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    // }
 
-    @Test
-    void loginUser_Returns_message_from_UserService_When_ResultIsFailure() {
-        // Arrange
-        var request = enchancedRandom.nextObject(LoginRequest.class);
-        var message = enchancedRandom.nextObject(String.class);
+    // @Test
+    // void loginUser_Returns_message_from_UserService_When_ResultIsFailure() {
+    //     // Arrange
+    //     var request = enchancedRandom.nextObject(LoginRequest.class);
+    //     var message = enchancedRandom.nextObject(String.class);
         
-        when(mockUserService.authenticateUser(request))
-            .thenReturn(new Result<>(false, message));
+    //     when(mockUserService.authenticateUser(request))
+    //         .thenReturn(new Result<>(false, message));
 
-        // Act
-        var response = _sut.loginUser(request);
+    //     // Act
+    //     var response = _sut.loginUser(request);
 
-        // Assert
-        assertEquals(message, response.getBody());
-    }
+    //     // Assert
+    //     assertEquals(message, response.getBody());
+    // }
 
     // #endregion
 
@@ -266,7 +265,7 @@ class UserControllerTests {
     @Test
     void getById_Calls_UserService_With_Id() {
         // Arrange
-        var id = enchancedRandom.nextObject(int.class);
+        var id = enchancedRandom.nextObject(String.class);
         var response = enchancedRandom.nextObject(Result.class);
         
         when(mockUserService.getUserById(id))
@@ -282,7 +281,7 @@ class UserControllerTests {
     @Test
     void getById_Returns_BadRequest_When_ResultIsFailure() {
         // Arrange
-        var id = enchancedRandom.nextObject(int.class);
+        var id = enchancedRandom.nextObject(String.class);
         var message = enchancedRandom.nextObject(String.class);
         
         when(mockUserService.getUserById(id))
@@ -298,7 +297,7 @@ class UserControllerTests {
     @Test
     void getById_Returns_message_from_UserService_When_ResultIsFailure() {
         // Arrange
-        var id = enchancedRandom.nextObject(int.class);
+        var id = enchancedRandom.nextObject(String.class);
         var message = enchancedRandom.nextObject(String.class);
         
         when(mockUserService.getUserById(id))

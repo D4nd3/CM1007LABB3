@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components';
-import { registerUser } from '../services/api';
-import { CreateUserRequest } from '../types/requests';
+import { loginWithKeycloak,registerUser } from '../services/api';
+import { CreateUserRequest, KeycloakLoginRequest } from '../types/requests';
 import { UserResponse} from '../types/responses'
 import { useAuth } from '../contexts/AuthContext';
 import './css/RegisterPage.css';
@@ -35,8 +35,17 @@ const RegisterPage: React.FC = () => {
     };
 
     try {
-      const response: UserResponse = await registerUser(userRequest);
-      login(response);
+      await registerUser(userRequest);
+      const keycloakRequest: KeycloakLoginRequest = {
+        username: username,
+        password: password,
+        client_id: 'postman',
+        grant_type: 'password',
+        // client_secret: 'cNKdFVrU1OCqLbDZSxWrsvDyTg3pmZrC', 
+      };
+
+      const tokenResponse = await loginWithKeycloak(keycloakRequest);
+      login(tokenResponse);
       navigate('/');
     } catch (err) {
       setError('Registreringen misslyckades. Försök igen.');

@@ -16,7 +16,7 @@ public class Result<T> implements IResult {
         this.data = data;
     }
 
-    public boolean getSuccess() {
+    public boolean isSuccess() {
         return success;
     }
 

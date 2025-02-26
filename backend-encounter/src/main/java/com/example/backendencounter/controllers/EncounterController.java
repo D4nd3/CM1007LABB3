@@ -10,6 +10,8 @@ import com.example.backendencounter.dto.responses.observations.*;
 import com.example.backendencounter.interfaces.IEncounterService;
 import com.example.backendencounter.util.Result;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/encounters")
 public class EncounterController {
@@ -21,8 +23,9 @@ public class EncounterController {
     }
 
     @PostMapping("createEncounter")
-    public ResponseEntity<?> CreateEncounter(@RequestBody CreateEncounterRequest request){
-        var result = encounterService.addEncounter(request);
+    public ResponseEntity<?> CreateEncounter(@RequestBody CreateEncounterRequest createRequest, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        var result = encounterService.addEncounter(createRequest, token);
 
          if(!result.getSuccess()){
             return ResponseEntity
@@ -60,8 +63,9 @@ public class EncounterController {
     }
 
     @GetMapping("byStaffId")
-    public ResponseEntity<?> GetByStaffId(@RequestParam int id){
-        var result = encounterService.getEncountersByStaffId(id);
+    public ResponseEntity<?> GetByStaffId(@RequestParam String id, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        var result = encounterService.getEncountersByStaffId(id, token);
 
         if(!result.getSuccess()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result.getMessage());
@@ -77,8 +81,9 @@ public class EncounterController {
     }
 
     @GetMapping("byPatientId")
-    public ResponseEntity<?> GetByPatientId(@RequestParam int id){
-        var result = encounterService.getEncountersByPatientId(id);
+    public ResponseEntity<?> GetByPatientId(@RequestParam String id, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        var result = encounterService.getEncountersByPatientId(id, token);
 
         if(!result.getSuccess()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result.getMessage());

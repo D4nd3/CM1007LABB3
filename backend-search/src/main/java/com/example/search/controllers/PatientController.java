@@ -22,6 +22,7 @@ public class PatientController {
     @GET
     @Path("/searchName")
     public Response searchPatientsByName(@QueryParam("name") String name) {
+        System.out.println("Searching for patients by name");
         var result = patientService.findPatientsByName(name);
 
         if(!result.getSuccess()){

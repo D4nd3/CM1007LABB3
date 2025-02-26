@@ -1,6 +1,7 @@
 package com.example.backendmessage.proxies;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,8 +18,12 @@ public class UserServiceProxy {
         this.backendUserUrl = backendUserUrl;
     }
 
-    public UserResponse findUserById(int userId) {
+    public UserResponse findUserById(String userId, String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
         String url = backendUserUrl + "/users/byId?id=" + userId;
-        return restTemplate.getForObject(url, UserResponse.class);
+        return restTemplate.exchange(url, HttpMethod.GET, entity, UserResponse.class).getBody();
     }
 }

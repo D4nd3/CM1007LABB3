@@ -2,7 +2,7 @@ package com.example.backenduser.util;
 
 
 public interface IResult {
-    boolean getSuccess();
+    boolean isSuccess();
     String getMessage();
     Object getData();
 }

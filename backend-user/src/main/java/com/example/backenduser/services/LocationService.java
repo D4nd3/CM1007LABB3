@@ -20,12 +20,7 @@ public class LocationService implements ILocationService {
     public IResult getAll(){
         var locations = locationRepository.findAll();
 
-        if (locations == null){
-            return new Result<>(false,"Repository Issues");
-        }
-
         var result = locations.stream().map(Converter::convertLocation).collect(Collectors.toList());
-
 
         return new Result<List<LocationResponse>>(true,"",result);
     }

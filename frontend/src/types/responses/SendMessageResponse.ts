@@ -1,9 +1,9 @@
 export interface SendMessageResponse {
   id: number;
   text: string;
-  senderId: number;
+  senderId: string;
   senderName: String;
-  receiverId: number;
+  receiverId: string;
   receiverName: String;
   timestamp: bigint;
   isRead: boolean;

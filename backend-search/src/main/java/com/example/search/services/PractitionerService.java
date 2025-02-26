@@ -37,7 +37,7 @@ public class PractitionerService implements IPractitionerService {
       return new Result<List<UserResponse>>(true,"",userResponses);
     }
 
-    public IResult PatientsByPractitioner(int id){
+    public IResult PatientsByPractitioner(String id){
       var patients = practitionerRepository.findPatientsByPractitioner(id);
       if (patients == null){
         return new Result<>(false,"Repository Issues");

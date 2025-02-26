@@ -10,7 +10,7 @@ const fs_1 = __importDefault(require("fs"));
 const router = (0, express_1.Router)();
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        const uploadPath = path_1.default.join(__dirname, '../../uploads/');
+        const uploadPath = '/app/uploads';
         if (!fs_1.default.existsSync(uploadPath)) {
             console.log(`Skapar mappen: ${uploadPath}`);
             fs_1.default.mkdirSync(uploadPath, { recursive: true });
@@ -24,7 +24,15 @@ const storage = multer_1.default.diskStorage({
 const upload = (0, multer_1.default)({ storage });
 router.post('/', upload.single('image'), (req, res) => {
     const file = req.file;
+    console.log('Uppladdad fil:', file); // Debug-logg
     if (!file || !file.filename) {
+        if (!file) {
+            console.error("!file");
+        }
+        if (file && !file.filename) {
+            console.error("!file.filename");
+            console.log(file);
+        }
         res.status(400).send('Ingen bild uppladdad.');
     }
     res.status(200).send({
@@ -34,7 +42,7 @@ router.post('/', upload.single('image'), (req, res) => {
     });
 });
 router.get('/all', (_req, res) => {
-    const uploadPath = path_1.default.join(__dirname, '../../uploads/');
+    const uploadPath = '/app/uploads';
     if (!fs_1.default.existsSync(uploadPath)) {
         res.status(404).send({ message: 'Mappen uploads/ hittades inte.' });
         return;
@@ -49,8 +57,9 @@ router.get('/all', (_req, res) => {
     }
 });
 router.get('/:filename', (req, res) => {
+    console.log('Hämtar fil:', req.params.filename);
     const filename = decodeURIComponent(req.params.filename);
-    const filepath = path_1.default.join(__dirname, '../../uploads/', filename);
+    const filepath = path_1.default.join('/app/uploads', filename);
     if (!fs_1.default.existsSync(filepath)) {
         res.status(404).send({ message: `Filen ${filename} hittades inte.` });
         return;

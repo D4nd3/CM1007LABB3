@@ -5,9 +5,9 @@ import com.example.backendmessage.util.IResult;
 
 public interface IMessageService {
    
-  IResult getMessagesByUserId(int id);
+  IResult getMessagesByUserId(String id, String token);
 
-  IResult send(SendMessageRequest request);
+  IResult send(SendMessageRequest request, String token);
     
-  IResult updateIsRead(int messageId);
+  IResult updateIsRead(int messageId, String token);
 }

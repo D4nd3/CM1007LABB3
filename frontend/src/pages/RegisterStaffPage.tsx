@@ -17,13 +17,15 @@ const RegisterStaffPage: React.FC = () => {
   const [organizations, setOrganizations] = useState<OrganizationResponse[]>([]);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const { user } = useAuth();
+  const { token, isAdmin } = useAuth();
 
   useEffect(() => {
+    if (!token) {
+      return;
+    } 
     const loadOrganizations = async () => {
       try {
-        const data = await fetchOrganizations();
+        const data = await fetchOrganizations(token);
         setOrganizations(data);
       } catch (err) {
         console.error('Error fetching organizations:', err);
@@ -39,6 +41,9 @@ const RegisterStaffPage: React.FC = () => {
   ];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (!token) {
+      return;
+    } 
     e.preventDefault();
     setError(null);
     setSuccess(null);
@@ -53,8 +58,8 @@ const RegisterStaffPage: React.FC = () => {
         roleId,
         organizationId,
       };
-
-      const response = await registerUser(userData);
+      console.log(userData);
+      const response = await registerUser(userData, token);
       setSuccess('Användaren skapades framgångsrikt!');
     } catch (err) {
       setError('Ett fel uppstod vid registreringen.');
@@ -63,7 +68,7 @@ const RegisterStaffPage: React.FC = () => {
   };
 
   
-  if (!user || user.role !== 'ADMIN') {
+  if (!isAdmin) {
     return (
       <div>
         <Navbar />

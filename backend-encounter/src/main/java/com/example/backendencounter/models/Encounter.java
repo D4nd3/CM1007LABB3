@@ -21,9 +21,9 @@ public class Encounter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private int patient_id;
+    private String patient_id;
 
-    private int staff_id;
+    private String staff_id;
 
     private Integer location_id;
 

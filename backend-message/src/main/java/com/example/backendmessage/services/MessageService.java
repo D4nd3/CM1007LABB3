@@ -26,8 +26,8 @@ public class MessageService implements IMessageService{
     @Autowired
     private UserServiceProxy userServiceProxy;
 
-    public IResult getMessagesByUserId(int id) {
-        var userResponse = userServiceProxy.findUserById(id);
+    public IResult getMessagesByUserId(String id, String token) {
+        var userResponse = userServiceProxy.findUserById(id, token);
         if (userResponse == null) {
             return new Result<>(false, "Kunde inte hitta användaren i UserService.");
         }
@@ -40,7 +40,7 @@ public class MessageService implements IMessageService{
             .collect(Collectors.toList());
 
         var receiverResponses = uniqueReceiverIds.stream()
-        .map(userServiceProxy::findUserById)
+        .map(receiverId -> userServiceProxy.findUserById(receiverId, token))
         .filter(java.util.Objects::nonNull)
         .collect(Collectors.toMap(UserResponse::getId, user -> user));
 
@@ -66,7 +66,7 @@ public class MessageService implements IMessageService{
             .collect(Collectors.toList());
 
         var senderResponses = uniqueSenderIds.stream()
-            .map(userServiceProxy::findUserById)
+            .map(receiverId -> userServiceProxy.findUserById(receiverId, token))
             .filter(java.util.Objects::nonNull)
             .collect(Collectors.toMap(UserResponse::getId, user -> user));
 
@@ -91,14 +91,14 @@ public class MessageService implements IMessageService{
         return new Result<List<MessageResponse>>(true,"",result);
     }
 
-    public IResult send(SendMessageRequest request) {
-        var sender = userServiceProxy.findUserById(request.getSenderId());
+    public IResult send(SendMessageRequest request, String token) {
+        var sender = userServiceProxy.findUserById(request.getSenderId(), token);
 
         if (sender == null) {
             return new Result<>(false, "Avsändaren kunde inte hittas.");
         }
 
-        var receiver =  userServiceProxy.findUserById(request.getReceiverId());
+        var receiver =  userServiceProxy.findUserById(request.getReceiverId(), token);
         if (receiver == null) {
             return new Result<>(false, "Mottagaren kunde inte hittas.");
         }
@@ -119,7 +119,7 @@ public class MessageService implements IMessageService{
         return new Result<MessageResponse>(true,"",value);
     }
 
-    public IResult updateIsRead(int messageId) {
+    public IResult updateIsRead(int messageId, String token) {
         var optionalMessage = messageRepository.findById(messageId);
         
         if (optionalMessage.isEmpty()) {
@@ -128,13 +128,13 @@ public class MessageService implements IMessageService{
 
         var message = optionalMessage.get();
 
-        var sender = userServiceProxy.findUserById(message.getSender_user_id());
+        var sender = userServiceProxy.findUserById(message.getSender_user_id(), token);
 
         if (sender == null) {
             return new Result<>(false, "Avsändaren kunde inte hittas.");
         }
 
-        var receiver =  userServiceProxy.findUserById(message.getReceiver_user_id());
+        var receiver =  userServiceProxy.findUserById(message.getReceiver_user_id(), token);
         if (receiver == null) {
             return new Result<>(false, "Mottagaren kunde inte hittas.");
         }

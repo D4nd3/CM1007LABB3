@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,20 +27,30 @@ public class UserService implements IUserService{
     @Autowired
     private OrganizationRepository organizationRepository;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private KeycloakAdminService keycloakAdminService;
+
 
     public IResult registerUser(CreateUserRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return new Result<>(false,"A User already exists witht his email");
+        if (request.getRoleId() != 1 && !KeycloakAdminService.hasRole("Admin")) {
+            return new Result<>(false, "Authorization failed");
+        }
+
+        if (keycloakAdminService.isUserExists(request.getEmail(), request.getUsername())) {
+            return new Result<>(false,"A User already exists with this email");
         }
         
         User user;
+        String groupName;
+        IResult keycloackResult;
         var role = Role.fromId(request.getRoleId());
         if (role == Role.PATIENT){
+            groupName = "PATIENT";
             user = new Patient();
         }
         else if (role == Role.PRACTITIONER) {
             Practitioner practitioner = new Practitioner();
+            groupName = "PRACTITIONER";
             Organization organization = organizationRepository.findById(request.getOrganizationId())
                     .orElseThrow(() -> new IllegalArgumentException("Organization not found"));
 
@@ -46,7 +58,7 @@ public class UserService implements IUserService{
             user = practitioner;
         } else if (role == Role.OTHER){
             Other other = new Other();
-
+            groupName = "OTHER";
             Organization organization = organizationRepository.findById(request.getOrganizationId())
                     .orElseThrow(() -> new IllegalArgumentException("Organization not found"));
             other.setOrganization(organization);
@@ -56,35 +68,23 @@ public class UserService implements IUserService{
             return new Result<>(false, "No Sutch Role Supported");
         }
 
+        keycloackResult = keycloakAdminService.createUserWithGroup(request, groupName);
+
+        if (!(keycloackResult.isSuccess() && keycloackResult instanceof Result<?> res && res.getData() instanceof String userId)) {
+            
+            return new Result<>(false, "Keycloak user creation failed: " + keycloackResult.getMessage());
+        }
+        user.setId(userId); 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setEmail(request.getEmail());
-        user.setRole(Role.fromId(request.getRoleId()));
-
+        user.setRole(role);
         var result = userRepository.save(user);
 
         var response = Converter.convertUser(result);
         return new Result<UserResponse>(true,"",response);
     }
 
-    public IResult authenticateUser(LoginRequest request) {
-        var userOption = userRepository.findByEmail(request.getEmail());
-        if( userOption.isEmpty()){
-            return new Result(false,"Invalid mail or password, fail");
-        }
-        var user = userOption.get();
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return new Result(false,"Invalid email or password,fail");
-        }
-    
-        var response = Converter.convertUser(user);
-        return new Result<UserResponse>(true,"",response);
-    }
-
     public IResult getAllStaff(){
-        
         List<Role> roles = new ArrayList<>();
         roles.add(Role.PRACTITIONER);
         roles.add(Role.OTHER);
@@ -111,7 +111,7 @@ public class UserService implements IUserService{
         return new Result<List<UserResponse>>(true,"",userResponses);
     }
 
-    public IResult getUserById(int id){
+    public IResult getUserById(String id){
         var user = userRepository.findById(id);
 
         if(user.isEmpty()){

@@ -6,7 +6,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class SendMessageRequest {
-    private int senderId;
-    private int receiverId;
+    private String senderId;
+    private String receiverId;
     private String text;
 }

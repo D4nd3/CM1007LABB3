@@ -1,5 +1,5 @@
 export interface CreateNoteRequest {
-    patientId : number;
-    staffId : number;
+    patientId : string;
+    staffId : string;
     text: string;
 }

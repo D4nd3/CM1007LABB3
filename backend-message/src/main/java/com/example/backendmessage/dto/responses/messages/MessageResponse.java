@@ -12,11 +12,11 @@ public class MessageResponse {
 
     private String text;
 
-    private int senderId;
+    private String senderId;
 
     private String senderName;
 
-    private int receiverId;
+    private String receiverId;
 
     private String receiverName;
 

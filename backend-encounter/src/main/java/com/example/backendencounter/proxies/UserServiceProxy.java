@@ -3,11 +3,12 @@ package com.example.backendencounter.proxies;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.parsing.Location;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
+import org.springframework.http.*;
 import com.example.backendencounter.dto.responses.users.LocationResponse;
 import com.example.backendencounter.dto.responses.users.UserResponse;
 
@@ -22,23 +23,34 @@ public class UserServiceProxy {
         this.backendUserUrl = backendUserUrl;
     }
 
-    public UserResponse findUserById(int userId) {
+    public UserResponse findUserById(String userId, String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
         String url = backendUserUrl + "/users/byId?id=" + userId;
-        return restTemplate.getForObject(url, UserResponse.class);
+        return restTemplate.exchange(url, HttpMethod.GET, entity, UserResponse.class).getBody();
     }
 
-    public List<LocationResponse> getLocations() {
+    public List<LocationResponse> getLocations(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
         String url = backendUserUrl + "/locations/";
+
         return restTemplate.exchange(
                 url,
                 HttpMethod.GET,
-                null,
+                entity,
                 new ParameterizedTypeReference<List<LocationResponse>>() {}
         ).getBody();
     }
 
-    public LocationResponse findLocationById(int id) {
+    public LocationResponse findLocationById(int id, String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
         String url = backendUserUrl + "/locations/byId?id=" + id;
-        return restTemplate.getForObject(url, LocationResponse.class);
+        return restTemplate.exchange(url, HttpMethod.GET, entity, LocationResponse.class).getBody();
     }
 }

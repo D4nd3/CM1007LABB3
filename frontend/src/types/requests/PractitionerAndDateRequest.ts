@@ -1,5 +1,5 @@
 export interface PractitionerAndDateRequest {
-    practitionerId: number;
+    practitionerId: string;
     date: Date;
   }
 

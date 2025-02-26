@@ -21,10 +21,6 @@ public class PatientService implements IPatientService {
     public IResult getAll(){
         var users = patientRepository.findAll();
 
-        if (users == null){
-            return new Result<>(false,"Repository Issues");
-        }
-
         var result = users.stream().map(Converter::convertUser).collect(Collectors.toList());
 
         return new Result<List<UserResponse>>(true,"",result);

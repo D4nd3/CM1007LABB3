@@ -24,9 +24,9 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody CreateUserRequest request) {
+        System.out.println("Registering user");
         var result = userService.registerUser(request);
-
-        if(!result.getSuccess()){
+        if(!result.isSuccess()){
             return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(result.getMessage());
@@ -40,27 +40,11 @@ public class UserController {
         .body("Non expected return type");
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
-        var result = userService.authenticateUser(loginRequest);
-            
-        if(!result.getSuccess()){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result.getMessage());
-        }
-        if (result instanceof Result<?> res && res.getData() instanceof UserResponse authenticatedUser) {
-            
-            return ResponseEntity.ok(authenticatedUser);
-        }
-        return ResponseEntity
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("Non expected return type");
-    }
-
     @GetMapping("/allStaff")
     public ResponseEntity<?> getAllStaff(){
         var result = userService.getAllStaff();
 
-        if(!result.getSuccess()){
+        if(!result.isSuccess()){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result.getMessage());
         }
 
@@ -77,7 +61,7 @@ public class UserController {
     public ResponseEntity<?> getAll(){
         var result = userService.getAll();
 
-        if(!result.getSuccess()){
+        if(!result.isSuccess()){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result.getMessage());
         }
 
@@ -91,10 +75,10 @@ public class UserController {
     }
 
     @GetMapping("/byId")
-    public ResponseEntity<?> getById(@RequestParam int id){
+    public ResponseEntity<?> getById(@RequestParam String id){
         var result = userService.getUserById(id);
             
-        if(!result.getSuccess()){
+        if(!result.isSuccess()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
         }
         if (result instanceof Result<?> res && res.getData() instanceof UserResponse userResponse) {

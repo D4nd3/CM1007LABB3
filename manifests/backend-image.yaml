@@ -16,6 +16,13 @@ spec:
       - name: backend-image
         image: d4nd3/backend-image:latest
         imagePullPolicy: Always
+        env:
+        - name: KEYCLOAK_URL
+          value: "http://keycloak:8080"
+        - name: KEYCLOAK_REALM
+          value: "master"
+        - name: PORT
+          value: "8085"
         volumeMounts:
         - name: uploads-storage
           mountPath: /app/uploads

@@ -1,5 +1,5 @@
 export interface CreateEncounterRequest {
-    patientId : number;
-    staffId: number;
+    patientId : string;
+    staffId: string;
     locationId: number | null;
 }

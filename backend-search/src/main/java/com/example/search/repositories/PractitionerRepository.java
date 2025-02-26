@@ -2,7 +2,6 @@ package com.example.search.repositories;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import com.example.search.models.Encounter;
 import com.example.search.models.Patient;
@@ -14,7 +13,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class PractitionerRepository implements PanacheRepository<Practitioner> {
 
-    public List<Patient> findPatientsByPractitioner(int practitionerId) {
+    public List<Patient> findPatientsByPractitioner(String practitionerId) {
     String query = """
         SELECT DISTINCT e.patient FROM Encounter e
         WHERE e.staff.id = :practitionerId
@@ -24,7 +23,7 @@ public class PractitionerRepository implements PanacheRepository<Practitioner> {
             .getResultList();
     }
 
-    public List<Encounter> findEncountersByPractitionerAndDate(int practitionerId, Date date) {
+    public List<Encounter> findEncountersByPractitionerAndDate(String practitionerId, Date date) {
         String query = """
             SELECT e FROM Encounter e 
             JOIN e.observations o 

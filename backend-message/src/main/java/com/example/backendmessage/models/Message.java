@@ -17,9 +17,9 @@ public class Message {
 
     private String text;
 
-    private int sender_user_id;
+    private String sender_user_id;
 
-    private int receiver_user_id;
+    private String receiver_user_id;
 
     private Long timestamp;
 

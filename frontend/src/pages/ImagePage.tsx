@@ -15,11 +15,11 @@ const ImagePage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
-  const { user, isPractitioner } = useAuth();
+  const { user, isPractitioner,token } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
+    if (!token) {
       navigate('/login');
       return;
     } if (!isPractitioner) {
@@ -28,8 +28,11 @@ const ImagePage: React.FC = () => {
     }
     
     const fetchImages = async () => {
+      if (!token) {
+        return;
+      }
       try {
-        const fetchedImages = await fetchAllImages();
+        const fetchedImages = await fetchAllImages(token);
         setImages(fetchedImages);
     
         if (fetchedImages.length > 0) {
@@ -52,6 +55,9 @@ const ImagePage: React.FC = () => {
   };
 
   const handleUpload = async () => {
+    if (!token) {
+      return;
+    }
     if (!selectedFile) {
       setUploadMessage('Ingen fil vald.');
       return;
@@ -61,7 +67,7 @@ const ImagePage: React.FC = () => {
     formData.append('image', selectedFile);
 
     try {
-      const response = await uploadImage(formData);
+      const response = await uploadImage(formData,token);
       const { filename } = response;
       setImages((prevImages) => [...prevImages, filename]);         
       setUploadMessage('Bild uppladdad framgångsrikt!');
@@ -71,13 +77,16 @@ const ImagePage: React.FC = () => {
   };
 
   const handleDownload = async () => {
+    if (!token) {
+      return;
+    }
     if (!selectedImage) {
       setError('Ange ett filnamn för nedladdning.');
       return;
     }
 
     try {
-      const blob = await fetchImage(selectedImage);
+      const blob = await fetchImage(selectedImage,token);
       const url = URL.createObjectURL(blob);
       setImageURL(url);
       setError('');
@@ -88,13 +97,16 @@ const ImagePage: React.FC = () => {
   };
 
   const startEditing = async () => {
+    if (!token) {
+      return;
+    }
     if (!selectedImage) {
       setError('Välj en bild att redigera.');
       return;
     }
   
     try {
-      const blob = await fetchImage(selectedImage);
+      const blob = await fetchImage(selectedImage,token);
       setImageBlob(blob);
       setIsEditing(true);
     } catch (err: any) {
@@ -110,13 +122,16 @@ const ImagePage: React.FC = () => {
     <div>
       <Navbar />
       {isEditing && imageBlob && (
+        
         <ImageEditor
           imageBlob={imageBlob} 
           onSave={(editedBlob) => {
+            if (!token) {
+              return;
+            }
             const formData = new FormData();
             formData.append('image', editedBlob);
-          
-            uploadImage(formData)
+            uploadImage(formData,token)
               .then((response) => {
                 const { filename } = response;
                 setImages((prevImages) => [...prevImages, filename]);

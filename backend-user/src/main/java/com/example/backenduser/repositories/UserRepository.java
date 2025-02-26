@@ -12,9 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
-    Optional<User> findByEmail(String email);
-    Boolean existsByEmail(String email);
+public interface UserRepository extends JpaRepository<User, String> {
     @Query("SELECT u FROM User u WHERE u.role IN :roles")
     List<User> findByRoleIn(@Param("roles") List<Role> roles);
     List<User> findAll();

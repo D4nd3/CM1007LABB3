@@ -24,6 +24,14 @@ spec:
           value: journalpassword
         - name: SERVER_PORT
           value: "8081"
+        - name: KEYCLOAK_URL
+          value: http://keycloak:8080
+        - name: KEYCLOAK_REALM
+          value: master
+        - name: KEYCLOAK_CLIENT
+          value: backend
+        - name: KEYCLOAK_CLIENT_SECRET
+          value: B2y0bFvwwKe7lfMMpfrUAFissPqzaezB
         ports:
         - containerPort: 8081
 ---

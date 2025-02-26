@@ -26,7 +26,7 @@ public class PatientController {
     public ResponseEntity<?> getAllPatients(){
         var result = patientService.getAll();
 
-        if(!result.getSuccess()){
+        if(!result.isSuccess()){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result.getMessage());
         }
 

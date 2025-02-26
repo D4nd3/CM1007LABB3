@@ -9,33 +9,37 @@ import { SendMessageResponse } from '../types/responses/SendMessageResponse';
 import './css/MessagePage.css';
 
 const MessagePage: React.FC = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [staffList, setStaffList] = useState<UserResponse[]>([]);
   const [usersList, setUsersList] = useState<UserResponse[]>([]);
-  const [selectedStaff, setSelectedStaff] = useState<number | null>(null);
+  const [selectedStaff, setSelectedStaff] = useState<string | null>(null);
   const [messageText, setMessageText] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [messages, setMessages] = useState<SendMessageResponse[]>([]);
   const [expandedMessageId, setExpandedMessageId] = useState<number | null>(null);
+  const {userId,isPatient, isStaff,token } = useAuth();
 
   useEffect(() => {
-    if(!user){
+    if(!token){
         navigate('/login'); 
       return;
     }
     const loadData = async () => {
+        if (!token) {
+          return;
+        }
+        console.log(token);
         try {
-        if (user.role === 'PATIENT') {
-            const staffResponse = await fetchAllStaff();
+        if (isPatient) {
+            const staffResponse = await fetchAllStaff(token);
             setStaffList(staffResponse);
-        } else if (user.role === 'PRACTITIONER' || user.role === 'OTHER') {
-            const usersResponse = await fetchAllUsers();
+        } else if (isStaff) {
+            const usersResponse = await fetchAllUsers(token);
             setUsersList(usersResponse);
         }
     
-        const messageResponse = await getMessages(user.id);
+        const messageResponse = await getMessages(userId,token);
         setMessages(messageResponse);
         } catch (err) {
         console.error('Error loading data:', err);
@@ -43,9 +47,12 @@ const MessagePage: React.FC = () => {
         }
     };
     loadData();
-  }, [user]);
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (!token) {
+      return;
+    }
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
@@ -55,23 +62,18 @@ const MessagePage: React.FC = () => {
       return;
     }
 
-    if (!user) {
-      setError('Inloggad användare saknas. Logga in igen.');
-      return;
-    }
-
     const messageRequest: SendMessageRequest = {
-      senderId: user.id,
+      senderId: userId,
       receiverId: selectedStaff,
       text: messageText
     };
 
     try {
-      const response = await sendMessage(messageRequest);
+      const response = await sendMessage(messageRequest, token);
       setSuccessMessage('Meddelandet skickades framgångsrikt!');
       setMessageText('');
       setSelectedStaff(null);
-      const updatedMessages = await getMessages(user.id);
+      const updatedMessages = await getMessages(userId, token);
       setMessages(updatedMessages);
     } catch (err) {
       console.error('Error sending message:', err);
@@ -80,9 +82,12 @@ const MessagePage: React.FC = () => {
   };
 
   const handleExpandMessage = async (msg: SendMessageResponse) => {
-    if (msg.receiverId === user?.id && !msg.isRead) {
+    if (!token) {
+      return;
+    }
+    if (msg.receiverId === userId && !msg.isRead) {
       try {
-        await updateIsRead(msg.id);
+        await updateIsRead(msg.id,token);
         const updatedMessages = messages.map((message) =>
           message.id === msg.id ? { ...message, isRead: true } : message
         );
@@ -107,12 +112,12 @@ const MessagePage: React.FC = () => {
           <label>Välj Personal:</label>
           <select
             value={selectedStaff || ''}
-            onChange={(e) => setSelectedStaff(Number(e.target.value))}
+            onChange={(e) => setSelectedStaff(e.target.value)}
           >
             <option value="" disabled>
               Välj en person...
             </option>
-            {(user?.role === 'PATIENT' ? staffList : usersList).map((person) => (
+            {(isPatient ? staffList : usersList).map((person) => (
             <option key={person.id} value={person.id}>
                 {person.fullName} ({person.role})
             </option>
@@ -140,11 +145,11 @@ const MessagePage: React.FC = () => {
             <li key={msg.id}>
               <div onClick={() => handleExpandMessage(msg)}>
                 <strong>
-                  {msg.senderId === user?.id ? 'Du skickade till' : `${msg.senderName} skickade till`}:{' '}
-                  {msg.receiverId === user?.id ? 'dig' : `${msg.receiverName}`}
+                  {msg.senderId === userId ? 'Du skickade till' : `${msg.senderName} skickade till`}:{' '}
+                  {msg.receiverId === userId ? 'dig' : `${msg.receiverName}`}
                 </strong>
                 {!msg.isRead && (
-                  <span className={`read-status ${msg.senderId === user?.id ? 'red' : 'green'}`}></span>
+                  <span className={`read-status ${msg.senderId === userId? 'red' : 'green'}`}></span>
                 )}
               </div>
               {expandedMessageId === msg.id && (
