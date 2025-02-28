@@ -24,4 +24,4 @@ jobs:
         version: 'latest'
 
     - name: Deploy Persistent Volumes and Claims
-      run: kubectl apply -f manifests/persistent-volumes.yaml
+      run: kubectl apply -f ../../manifests/persistent-volumes.yaml
