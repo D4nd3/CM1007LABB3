@@ -25,4 +25,4 @@ jobs:
               run: docker tag postgres:latest ${{ secrets.DOCKER_TAG_POSTGRES }}
 
             - name: Push image to cloud registry
-              run: docker push ${{ secrets.DOCKER_TAG }}
+              run: docker push ${{ secrets.DOCKER_TAG_POSTGRES }}
