@@ -1,4 +1,4 @@
-name: kthcloud-ci
+name: postgres
 
 on:
     workflow_dispatch:
