@@ -22,7 +22,7 @@ jobs:
               run: docker pull postgres:latest
 
             - name: Tag PostgreSQL image for cloud deployment
-              run: docker tag postgres:latest ${{ secrets.DOCKER_TAG }}
+              run: docker tag postgres:latest ${{ secrets.DOCKER_TAG_POSTGRES }}
 
             - name: Push image to cloud registry
               run: docker push ${{ secrets.DOCKER_TAG }}
